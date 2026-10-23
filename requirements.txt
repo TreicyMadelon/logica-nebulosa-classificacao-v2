@@ -1,0 +1,10 @@
+# Projeto: extração (EfficientNetB0), Fuzzy k-NN, SVM, split, avaliação e app.
+tensorflow>=2.16
+numpy
+pillow
+# Versão fixa: o SVM depende dela, e trocar a versão vira uma rodada dos dois modelos.
+scikit-learn==1.9.1
+streamlit>=1.30
+
+# Só para rodar os testes (opcional).
+pytest

@@ -1,0 +1,7 @@
+﻿classe,dataset,categoria,quantidade
+cachorro,imagenet,raças domésticas,100
+cachorro,voc,cachorro,100
+nao_cachorro,imagenet,objetos e cenários,50
+nao_cachorro,imagenet,outros animais,50
+nao_cachorro,voc,outros animais,50
+nao_cachorro,voc,pessoas,50

@@ -1,0 +1,3 @@
+# Só para a triagem da base (Etapa 4). Traz o PyTorch junto.
+# YOLOv8n da Ultralytics, treinado no COCO. Licença AGPL-3.0: gratuita para uso acadêmico.
+ultralytics

@@ -1,0 +1,33 @@
+# Ambiente e cache
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+
+# Bases de origem: 8,5 GB de ImageNet e Pascal VOC.
+# O README explica como baixar; nunca entram no repositório.
+bases_origem/
+
+# Pesos baixados na primeira execução (YOLO da triagem).
+yolov8n.pt
+
+# As 400 imagens da base e as cópias feitas pela triagem e pela avaliação.
+# Vêm do ImageNet e do Pascal VOC, que não permitem redistribuição.
+# Quem clonar baixa as duas bases de origem e roda: python montar_base.py --remontar
+# Isso copia exatamente as imagens que o metadados.csv lista, sem sortear de novo,
+# então a base sai idêntica à que gerou os resultados registrados.
+base_imagens/cachorro/
+base_imagens/nao_cachorro/
+triagem/descartadas/
+resultados/rodada_*/FP/
+resultados/rodada_*/FN/
+# V2: as cópias de FP e FN de cada modelo (resultados_fuzzyknn/ e resultados_svm/).
+resultados_*/rodada_*/FP_*/
+resultados_*/rodada_*/FN_*/
+
+# Números extraídos pelo EfficientNetB0: refeitos por montar_bairro.py.
+vetores/
+
+# Relatório da triagem em HTML: aponta para as imagens, que não estão aqui.
+triagem/relatorio.html
