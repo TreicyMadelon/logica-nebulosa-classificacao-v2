@@ -59,33 +59,57 @@ Atenção: Pertinência diz o quanto a imagem pertence ao conjunto "cachorro";
 
 **No SVM**, o grau é a **probabilidade** (`predict_proba`). O SVM traça uma fronteira entre cachorro e não cachorro com o bairro e guarda as imagens que ficam perto dela (os vetores de suporte). Uma imagem nova cai de um lado da fronteira, a uma distância: longe, do lado do cachorro, a probabilidade chega perto de 1; perto da fronteira, fica no meio. No lugar das vizinhas, a home do SVM mostra as **5 imagens do bairro que mais puxaram para a classe vencedora** na conta daquela imagem, com o rótulo de cada uma. O SVM não vota: a pontuação é a soma de todos os vetores de suporte, e a caixa mostra quanto as 5 somam e quanto vem do resto. Probabilidade é a chance de um evento, não pertinência: cada home usa a palavra do seu modelo, e os dois são comparados pelas métricas.
 
-### 7. As pertinências criam as faixas, e o meio é a área cinzenta
+### 7. O que define as faixas e a área cinzenta
 
-A classe é a de **maior pertinência**, decidida por um `if` comum. A pertinência a cachorro cria três situações:
+Cada modelo dá um grau de cachorro para a imagem: a pertinência no Fuzzy k-NN e a probabilidade no SVM. É desse grau que saem a classe e a faixa. As regras são as mesmas nos dois modelos; muda o nome do grau (pertinência ou porcentagem), a forma de escrever o número e o que a caixa usa para explicar a resposta.
 
-| pertinência a cachorro | o que a tela mostra |
+**O que vale para os dois**
+
+A classe é a de **maior grau**, decidida por um `if` comum. 
+
+O grau de cachorro cria três situações:
+
+| grau de cachorro | o que a tela mostra |
 |---|---|
 | abaixo de 0,40 | "Não é cachorro", com o grau, na caixa vermelha "❌ Imagem na área não é cachorro" |
 | de 0,40 a 0,60 | a classe com o grau, na caixa amarela "⚠ Imagem na área cinzenta" |
 | acima de 0,60 | "É cachorro", com o grau, na caixa verde "🐶 Imagem na área é cachorro" |
 
-A caixa aparece sempre, nas três faixas: ela traz a regra da faixa, a linha "pertinência da imagem:" com as duas pertinências e a linha "parecida com:". Abaixo dela vêm as fotos das 5 vizinhas, também nas três faixas — são elas que explicam de onde saiu a pertinência, tanto numa resposta folgada quanto numa apertada. O que só a área cinzenta tem é o aviso de que a decisão foi apertada.
+Os limites ficam no `config.py` (`FAIXA_CINZENTA`), um só para os dois modelos.
 
-A área cinzenta não muda a classe: só marca que a decisão foi apertada, e as 5 vizinhas explicam a dúvida. 
+A caixa aparece sempre, nas três faixas: ela traz a regra da faixa e os dois graus, o da classe vencedora primeiro. Abaixo dela vêm as fotos de 5 imagens do bairro, também nas três faixas — são elas que explicam de onde saiu o grau, tanto numa resposta folgada quanto numa apertada. O que só a área cinzenta tem é o aviso de que a decisão foi apertada.
 
-No SVM, as faixas são as mesmas, lidas na probabilidade de cachorro e escritas em porcentagem (abaixo de 40%, de 40% a 60% e acima de 60%), com as mesmas caixas. A caixa traz a linha "probabilidade da imagem:", com os dois valores em porcentagem, a pontuação do SVM e quanto dela vem das 5 imagens que mais puxaram para a classe vencedora e quanto vem do resto.
+A área cinzenta não muda a classe: só marca que a decisão foi apertada.
 
-### 8. A pertinência vira a mensagem na tela
+**No Fuzzy k-NN**
 
-A tela junta o binário e o fuzzy ao mesmo tempo. Na home do Fuzzy k-NN, a mensagem principal segue a regra `<classe> · pertinência <valor>`: a classe é "É cachorro" ou "Não é cachorro", e o valor é a pertinência da classe vencedora calculada para aquela imagem, de 0 a 1, com duas casas decimais. Abaixo dela vem o bloco colorido da faixa, com a linha "pertinência da imagem:", que repete a vencedora e mostra a outra classe. Nenhuma das duas frases usa porcentagem: pertinência não é probabilidade.
+O grau é a pertinência a cachorro, de 0 a 1, e as faixas são abaixo de 0,40, de 0,40 a 0,60 e acima de 0,60. A caixa traz a linha "pertinência da imagem:", com as duas pertinências, e a linha "parecida com:", que conta quantas das 5 vizinhas são cachorro e quantas não são. As fotos são as 5 vizinhas, da mais próxima para a mais distante; na área cinzenta, são elas que explicam a dúvida.
 
-Arredondamento: a pertinência a cachorro é arredondada para **duas casas**, pelo arredondamento convencional (o meio sobe), e **é desse único número que sai tudo** — a classe (acima de 0,50 é cachorro; 0,50 fica não cachorro), a faixa, a cor da caixa e o que a tela mostra. A pertinência a não cachorro é 1 menos esse valor, então as duas sempre somam 1,00 na tela.
+**No SVM**
 
-Por isso a tela nunca se contradiz. Uma pertinência de 0,3965 aparece como 0,40 **e** entra na área cinzenta, em vez de aparecer como 0,40 numa caixa que diz "abaixo de 0,40". E uma de 0,5049 aparece como 0,50 **e** é classificada como não cachorro, em vez de dizer "É cachorro · pertinência 0,50".
+O grau é a probabilidade de cachorro, escrita em porcentagem, e as faixas são abaixo de 40%, de 40% a 60% e acima de 60%, com as mesmas caixas. A caixa traz a linha "probabilidade da imagem:", com as duas probabilidades em porcentagem, a pontuação do SVM (positivo puxa para cachorro, negativo para não cachorro) e quanto dessa pontuação vem das 5 imagens que mais puxaram para a classe vencedora e quanto vem do resto (os outros vetores de suporte e o termo fixo). As fotos são essas imagens, até 5 (nas 80 do teste, sempre 5), da que mais pesou para a que menos pesou. O SVM não vota: as 5 não são uma contagem, por isso a caixa não tem a linha "parecida com:".
 
-Na home do SVM, a mensagem segue a regra `<classe> · probabilidade <valor>%`: o valor é a probabilidade da classe vencedora em porcentagem, sem casas decimais. Ali a porcentagem cabe, porque o número é uma probabilidade. Vale a mesma régua, sobre a probabilidade de cachorro: a porcentagem é o número de duas casas vezes 100, sem arredondar de novo, então ela nunca discorda da classe nem da faixa, e o empate aparece como 50%, "Não é cachorro". "É cachorro" e "Não é cachorro" são iguais nas duas homes.
+### 8. O que vira a mensagem na tela
 
-As imagens enviadas ficam no bloco "Imagens anteriores" da sua home só durante a sessão e nunca entram na base.
+A tela junta o binário e o resultado ao mesmo tempo: a classe responde sim ou não, e o grau diz o quanto. Os dois modelos montam a mensagem, cada um a partir do seu grau de cachorro com duas casas; muda a palavra do grau e a forma de escrever o valor.
+
+**O que vale para os dois**
+
+A mensagem principal segue a regra `<classe> · <grau> <valor>`: a classe é "É cachorro" ou "Não é cachorro", iguais nas duas homes, e o valor é o grau da classe vencedora calculado para aquela imagem, escrito do jeito de cada modelo. Abaixo dela vem a caixa colorida da faixa (passo 7), que repete a vencedora e mostra a outra classe.
+
+Arredondamento: o grau de cachorro é arredondado para **duas casas**, pelo arredondamento convencional (o meio sobe), e **é desse único número que sai tudo** — a classe (acima de 0,50 é cachorro; 0,50 fica não cachorro), a faixa, a cor da caixa e os dois graus que a tela mostra. O grau de não cachorro é 1 menos esse valor, então os dois sempre somam 1,00 (100% no SVM).
+
+Por isso a tela nunca se contradiz. Um grau de 0,3965 aparece como 0,40 **e** entra na área cinzenta, em vez de aparecer como 0,40 numa caixa que diz "abaixo de 0,40". E um de 0,5049 aparece como 0,50 **e** é classificado como não cachorro, em vez de dizer "É cachorro" com 0,50.
+
+As imagens enviadas ficam no bloco "Imagens anteriores" da home de cada modelo só durante a sessão e nunca entram na base.
+
+**No Fuzzy k-NN**
+
+A mensagem segue a regra `<classe> · pertinência <valor>`, com o valor de 0 a 1 e duas casas decimais. A caixa mostra as duas pertinências na linha "pertinência da imagem:". 
+
+**No SVM**
+
+A mensagem segue a regra `<classe> · probabilidade <valor>%`, com o valor em porcentagem. Ali a porcentagem cabe, porque o número é uma probabilidade. A porcentagem é o número de duas casas vezes 100, sem arredondar de novo, então ela nunca discorda da classe nem da faixa, e o empate aparece como 50%, "Não é cachorro". A pontuação do SVM aparece só na caixa, com duas casas e sinal: ela ajuda a explicar a probabilidade, mas não decide a classe nem a faixa.
 
 ### 9. A matriz de confusão avalia o grau fuzzy (No teste)
 
