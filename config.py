@@ -18,6 +18,7 @@ from codigos_imagenet import OBJETOS_E_CENARIOS_IMAGENET, OUTROS_ANIMAIS_IMAGENE
 # A régua da comparação: vale igual para os dois modelos.
 
 # ------------------------------------------------------------------ pastas
+# Identifica onde está cada coisa (organização das pastas e arquivos do projeto). O código só lê o config, nunca escreve nele.
 RAIZ = Path(__file__).resolve().parent
 
 PASTA_BASE = RAIZ / "base_imagens"            # a base única (400 imagens)
@@ -70,7 +71,7 @@ CAT_OBJETOS = "objetos e cenários"
 CAT_PESSOAS = "pessoas"
 CAT_FORA_DO_PLANO = "fora do plano"   # aparece só se uma correção de rótulo tirar a imagem do plano
 
-# (classe, dataset de origem, categoria real, quantidade) — a tabela "Dados" do PRD.
+# De onde vem cada imagem e quantas entram, antes de qualquer sorteio.(classe, dataset de origem, categoria real, quantidade) — a tabela "Dados" do PRD.
 PLANO_BASE = [
     ("cachorro", "imagenet", CAT_RACAS, 100),
     ("cachorro", "voc", CAT_CACHORRO, 100),
@@ -87,17 +88,29 @@ CODIGOS_IMAGENET = {
     CAT_OBJETOS: OBJETOS_E_CENARIOS_IMAGENET,
 }
 
-# Pascal VOC: a categoria vem escrita no XML.
-VOC_CACHORRO = "dog"
-VOC_PESSOAS = "person"
-VOC_OUTROS_ANIMAIS = {
+# Pascal VOC: cada foto tem um XML de anotação (pasta Annotations) que lista os objetos
+# da foto, cada um com o nome em inglês na tag <name>. Os três nomes abaixo vêm desse XML:
+# o código compara o <name> de cada objeto com eles, por isso precisam estar escritos
+# exatamente como no Pascal VOC.
+VOC_CACHORRO = "dog"           # texto: o grupo "cachorro" do Pascal VOC
+VOC_PESSOAS = "person"         # texto: o grupo "pessoas"
+VOC_OUTROS_ANIMAIS = {"bird", "cat", "cow", "horse", "sheep"}   # conjunto (set): o grupo "outros animais"
+# Um conjunto só diz quais nomes fazem parte do grupo: não tem tradução nem ordem.
+# Onde a ordem importa (o sorteio da base), o código usa sorted(), que dá sempre
+# bird, cat, cow, horse, sheep.
+
+# Dicionário (dict): nome em inglês do XML → nome em português. Não vem do Pascal VOC e
+# não decide nada: só troca o nome na hora de mostrar (relatório da triagem e admin do app).
+# Um nome que não estiver aqui aparece em inglês.
+NOMES_VOC = {
+    "dog": "cachorro",
+    "person": "pessoa",
     "bird": "pássaro",
     "cat": "gato",
     "cow": "vaca",
     "horse": "cavalo",
     "sheep": "ovelha",
 }
-NOMES_VOC = {VOC_CACHORRO: "cachorro", VOC_PESSOAS: "pessoa", **VOC_OUTROS_ANIMAIS}
 
 # ------------------------------------------------------------------ triagem (YOLO)
 YOLO_MODELO = "yolov8n.pt"      # Ultralytics, treinado no COCO (tem a classe "dog")
@@ -113,7 +126,7 @@ FUZZYKNN_PASTA_RESULTADOS = RAIZ / "resultados_fuzzyknn"   # rodadas do Fuzzy k-
 # ================================================================== SÓ DO FUZZY K-NN · fim
 
 # ================================================================== SÓ DO SVM · início
-SVM_C = 1.0                     # padrão do scikit-learn; fixo durante toda a V2
-SVM_GAMMA = "scale"             # padrão do scikit-learn; fixo durante toda a V2
+SVM_C = 1.0                     # controla o equilíbrio entre acertar os exemplos de treinamento e permitir alguns erros; padrão do scikit-learn; fixo durante toda a V2
+SVM_GAMMA = "scale"             # controla a influência de cada exemplo na construção da fronteira de decisão; padrão do scikit-learn; fixo durante toda a V2
 SVM_PASTA_RESULTADOS = RAIZ / "resultados_svm"             # rodadas do SVM no teste fixo
 # ================================================================== SÓ DO SVM · fim

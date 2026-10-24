@@ -106,3 +106,10 @@ def test_o_codigo_so_le_o_config():
                 primeiro = no.args[0] if no.args else None
                 assert not (isinstance(primeiro, ast.Name) and primeiro.id == "config"), \
                     f"{arquivo.name}, linha {no.lineno}"
+
+
+def test_todo_nome_do_pascal_voc_tem_traducao():
+    """Os nomes procurados no XML e as traduções ficam separados no config: os dois precisam
+    ter os mesmos nomes, senão um grupo apareceria em inglês na tela."""
+    procurados = {config.VOC_CACHORRO, config.VOC_PESSOAS, *config.VOC_OUTROS_ANIMAIS}
+    assert set(config.NOMES_VOC) == procurados
